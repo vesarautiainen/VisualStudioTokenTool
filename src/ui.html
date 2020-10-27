@@ -1,5 +1,33 @@
+<!--
 <img src="<%= require('./logo.svg') %>">
 <h2>Rectangle Creator</h2>
 <p>Count: <input id="count" value="5"></p>
 <button id="create">Create</button>
 <button id="cancel">Cancel</button>
+-->
+
+<div>
+  <div id:"color-tokens">
+    <h1>Color Tokens</h1>
+    <div>
+      <div style="margin-top:10px;" id="color-list"></div>
+      <button id="create-color-all" class='button button--primary'>Annotate All Color Tokens</button>
+    </div>
+  </div>
+  <div id:"font-tokens" style="margin-top:20px;">
+    <h1>Font Tokens</h1>
+    <div>
+      <div id="typography-list"></div>
+      <button id="create-typography-all">Annotate All Fonts</button>
+    </div>
+  </div>
+  <div id:"themes" style="margin-top:20px;">
+    <h1>Themes</h1>
+    <div>
+      <button id="change-theme">Change to dark theme</button>
+    </div>
+  </div>
+   <!--
+   <button id="change-theme">ChangeTheme</button>
+   -->
+</div>
