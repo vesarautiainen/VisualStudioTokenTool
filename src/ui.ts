@@ -1,4 +1,5 @@
 
+import 'figma-plugin-ds/dist/figma-plugin-ds.css'
 import './ui.css'
 
 onmessage = (event) => {
