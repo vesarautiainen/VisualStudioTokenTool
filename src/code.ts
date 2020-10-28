@@ -1,14 +1,7 @@
-// This plugin will open a modal to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
-
-// This file holds the main code for the plugins. It has access to the *document*.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser environment (see documentation).
+import * as utils from './utils';
 
 
-// This shows the HTML page in "ui.html".
-figma.showUI(__html__);
-figma.ui.resize(400,600);
+figma.showUI(__html__,{width: 400, height: 700});
 
 enum TokenType {
   Font = 1,
@@ -151,7 +144,7 @@ function annotateColorToken(nodeId:string, tokenName:string){
     let originalNode = <SceneNode>figma.getNodeById(nodeId);
     let xOrigin = originalNode.absoluteTransform[0][2]
     let yOrigin = originalNode.absoluteTransform[1][2]
-    annotationInstance.resize(annotationInstance.width,randomInteger(30,150))
+    annotationInstance.resize(annotationInstance.width,utils.randomInteger(30,150))
     let xPos = xOrigin - annotationInstance.width / 2 + originalNode.width / 2;
     let yPos = yOrigin - annotationInstance.height + originalNode.height / 2;
     annotationInstance.relativeTransform = [[1, 0, xPos],[0, 1, yPos]];
@@ -248,9 +241,7 @@ function isSceneNode(node:BaseNode) {
 
 // Utils 
 //------------------------------------------------------
-function randomInteger(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
+
 
 function clone(val) {
   return JSON.parse(JSON.stringify(val))
