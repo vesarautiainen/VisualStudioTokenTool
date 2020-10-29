@@ -68,8 +68,25 @@ document.getElementById('create-typography-all').onclick = () => {
   parent.postMessage({ pluginMessage: { type: 'create-typography-annotation-all'} }, '*')
 }
 
-document.getElementById('change-theme').onclick = () => {
+document.getElementById('change-theme-dark').onclick = () => {
+  document.getElementById('change-theme-dark').className = "button button--primary";
+  document.getElementById('change-theme-light').className = "button button--secondary";
+  document.getElementById('change-theme-blue').className = "button button--secondary";
   parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: "Dark"} }, '*')
+}
+
+document.getElementById('change-theme-light').onclick = () => {
+  document.getElementById('change-theme-dark').className = "button button--secondary";
+  document.getElementById('change-theme-light').className = "button button--primary";
+  document.getElementById('change-theme-blue').className = "button button--secondary";
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: "Light"} }, '*')
+}
+
+document.getElementById('change-theme-blue').onclick = () => {
+  document.getElementById('change-theme-dark').className = "button button--secondary";
+  document.getElementById('change-theme-light').className = "button button--secondary";
+  document.getElementById('change-theme-blue').className = "button button--primary";
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: "Blue"} }, '*')
 }
 
 

@@ -123,7 +123,12 @@ figma.ui.onmessage = msg => {
     // @TODO: figure out how to do this theming properly in type script.
     if (msg.themeId == "Dark") {
       changeTheme(ColorTheme.Dark)
-    }
+    } else if (msg.themeId == "Light") {
+      changeTheme(ColorTheme.Light)
+
+    } else if (msg.themeId == "Blue") {
+      changeTheme(ColorTheme.Blue)
+    } 
   } else if (msg.type === 'token-hover') {
     console.log(msg.nodeId)
     highlightNode(msg.nodeId);
@@ -201,13 +206,7 @@ function annotateAllTypographyTokens() {
   });
 }
 
-function switchColors() {
-  nodesWithStyles.ColorStyles.forEach(element => {
-    switchThemeColor(element.nodeId, element.value);
-  });
-}
-
-function switchThemeColor(nodeId:string, tokenName:string){
+function switchThemeColor(nodeId:string, tokenName:string, themeInObject:any){
 
     // Find the category and token values
     let colorTokenId = ".";
@@ -222,8 +221,7 @@ function switchThemeColor(nodeId:string, tokenName:string){
     }
 
     // Find new color value from new theme
-    var xml = require('./themes/Theme.Dark.xml');
-    var categories = xml.Themes.Theme[0].Category
+    var categories = themeInObject.Themes.Theme[0].Category
     let category = categories.filter(item => item.$.Name == tokenCategory);
     let color = category[0].Color.filter(item => item.$.Name == colorToken);
     let colorValue = color[0].Background[0].$.Source;
@@ -281,8 +279,17 @@ function isSceneNode(node:BaseNode) {
 //------------------------------------------------------
 
 function changeTheme(theme:ColorTheme) {
-   var xml = require('./themes/Theme.Dark.xml');
-   switchColors();
+  var themeInObject;
+  if (theme == ColorTheme.Dark)
+  themeInObject = require('./themes/Theme.Dark.xml');
+  else if (theme == ColorTheme.Light) 
+    themeInObject = require('./themes/Theme.Light.xml');
+  else if (theme == ColorTheme.Blue) 
+    themeInObject = require('./themes/Theme.Blue.xml');
+
+   nodesWithStyles.ColorStyles.forEach(element => {
+    switchThemeColor(element.nodeId, element.value, themeInObject);
+  });
 }
 
 function clone(val) {
