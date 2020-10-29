@@ -201,6 +201,61 @@ function annotateAllTypographyTokens() {
   });
 }
 
+function switchColors() {
+  nodesWithStyles.ColorStyles.forEach(element => {
+    switchThemeColor(element.nodeId, element.value);
+  });
+}
+
+function switchThemeColor(nodeId:string, tokenName:string){
+
+    // Find the category and token values
+    let colorTokenId = ".";
+    let tokenCategory;
+      let colorToken;
+    let foundIndex = tokenName.indexOf(colorTokenId);
+    if (foundIndex) {
+      tokenCategory = tokenName.slice(0, foundIndex);
+      colorToken = tokenName.slice(foundIndex+1);
+    } else {
+      console.log("Error: switchThemeColor() Can't extract category and color token")
+    }
+
+    // Find new color value from new theme
+    var xml = require('./themes/Theme.Dark.xml');
+    var categories = xml.Themes.Theme[0].Category
+    let category = categories.filter(item => item.$.Name == tokenCategory);
+    let color = category[0].Color.filter(item => item.$.Name == colorToken);
+    let colorValue = color[0].Background[0].$.Source;
+
+    console.log("category:" + tokenCategory + " ,token: " + colorToken + " ,color: " + colorValue)
+
+    // Find the node and set the new color value
+    let originalNode = <SceneNode>figma.getNodeById(nodeId);
+    if (isSceneNode(originalNode)) {
+      let rectNode = <RectangleNode>originalNode;
+      const fills = clone(rectNode.fills)
+
+      // get rgb values
+      let rgb = hexToRgb(colorValue.slice(2))
+
+      // set data
+      fills[0].color.r = rgb.r/255;
+      fills[0].color.g = rgb.g/255;
+      fills[0].color.b = rgb.b/255;
+      rectNode.fills = fills 
+    }
+
+}
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
 // Highlight node
 //------------------------------------------------------
 function highlightNode(nodeId:string) {
@@ -227,14 +282,7 @@ function isSceneNode(node:BaseNode) {
 
 function changeTheme(theme:ColorTheme) {
    var xml = require('./themes/Theme.Dark.xml');
-   var categories = xml.Themes.Theme[0].Category
-   console.log(categories)
-   let category = categories.filter(item => item.$.Name == "Environment");
-   console.log(category)
-   let color = category[0].Color.filter(item => item.$.Name == "ActiveBorder");
-   console.log(color)
-   let colorValue = color[0].Background[0].$.Source;
-   console.log(colorValue)
+   switchColors();
 }
 
 function clone(val) {
