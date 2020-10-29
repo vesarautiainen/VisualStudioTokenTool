@@ -1,5 +1,5 @@
 import * as utils from './utils';
-
+//import score from '!!raw-loader!./themes/Theme.Dark.xml';
 
 figma.showUI(__html__,{width: 400, height: 700});
 
@@ -122,7 +122,7 @@ figma.ui.onmessage = msg => {
   } else if (msg.type === 'change-theme-version') {
     // @TODO: figure out how to do this theming properly in type script.
     if (msg.themeId == "Dark") {
-      //changeTheme(ColorTheme.Dark)
+      changeTheme(ColorTheme.Dark, msg.themeXml)
     }
   } else if (msg.type === 'token-hover') {
     console.log(msg.nodeId)
@@ -227,17 +227,18 @@ function isSceneNode(node:BaseNode) {
 
 
 
-// function changeTheme(theme:ColorTheme) {
-//   var xpath = require('xpath')
-//   , dom = require('xmldom').DOMParser
+function changeTheme(theme:ColorTheme, themeXml:string) {
+  console.log(themeXml)
+   var xpath = require('xpath')
+   , dom = require('xmldom').DOMParser
  
-//   var xml2 = "Themes/Theme.Dark.xml"
-//   var doc = new dom().parseFromString(xml2)
-//   var nodes = xpath.select("//title", doc)
+  // var xml2 = "Themes/Theme.Dark.xml"
+   var doc = new dom().parseFromString(themeXml)
+   //var nodes = xpath.select("//", doc)
   
-//   console.log(nodes[0].localName + ": " + nodes[0].firstChild.data)
-//   console.log("Node: " + nodes[0].toString())
-// }
+   console.log(doc)
+  // console.log("Node: " + nodes[0].toString())
+}
 
 // Utils 
 //------------------------------------------------------
