@@ -69,40 +69,16 @@ document.getElementById('create-typography-all').onclick = () => {
 }
 
 document.getElementById('change-theme').onclick = () => {
-  var xml = require('./themes/Theme.Dark.xml');
-  var categories = xml.Themes.Theme[0].Category
-  console.log(categories)
-  let category = categories.filter(item => item.$.Name == "Environment");
-  console.log(category)
-  let color = category[0].Color.filter(item => item.$.Name == "ActiveBorder");
-  console.log(color)
-  let colorValue = color[0].Background[0].$.Source;
-  console.log(colorValue)
-  //console.log(url);
-  //var xml = loadXMLDoc(url);
-  //var xhr = new XMLHttpRequest();
-  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: "Dark", themeXml: xml} }, '*')
-
-  // Create a connection to the file.
-  //var Connect = new XMLHttpRequest();
-  // Define which file to open and
-  // send the request.
-  // Connect.open("GET", url, false);
-  // Connect.setRequestHeader("Content-Type", "text/xml");
-  // Connect.send(null);
-  // // Place the response in an XML document.
-  // var TheDocument = Connect.responseXML;
-
-  //console.lo
-
-}
-var xhttp;
-function loadXMLDoc(filename)
-{
-xhttp = new XMLHttpRequest();
-xhttp.open("GET", filename, false);
-xhttp.send("");
-return xhttp.responseXML;
+  // var xml = require('./themes/Theme.Dark.xml');
+  // var categories = xml.Themes.Theme[0].Category
+  // console.log(categories)
+  // let category = categories.filter(item => item.$.Name == "Environment");
+  // console.log(category)
+  // let color = category[0].Color.filter(item => item.$.Name == "ActiveBorder");
+  // console.log(color)
+  // let colorValue = color[0].Background[0].$.Source;
+  // console.log(colorValue)
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: "Dark"} }, '*')
 }
 
 

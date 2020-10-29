@@ -13,8 +13,6 @@ module.exports = (env, argv) => ({
     ui: './src/ui.ts', // The entry point for your UI code
     code: './src/code.ts', // The entry point for your plugin code
   },
-
-  
   
   module: {
     rules: [
@@ -26,25 +24,6 @@ module.exports = (env, argv) => ({
 
       // Allows you to use "<%= require('./file.svg') %>" in your HTML code to get a data URI
       { test: /\.(png|jpg|gif|webp|svg|zip)$/, loader: [{ loader: 'url-loader' }] },
-
-      // will load all .xml files with xml-loader by default
-      //{ test: /\.xml$/, loader: 'xml-loader' },
-      // { test: /\.xml$/,
-      //   use: [
-      //     'raw-loader'
-      //   ]
-      // },
-        // {
-        //   test: /\.xml$/i,
-        //   use: 'raw-loader',
-        // },
-
-        {
-          test: /\.xml$/i,
-          use: [
-            {
-              loader: 'file-loader',
-            },
       
     ],
   },

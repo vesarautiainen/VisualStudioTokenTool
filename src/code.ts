@@ -122,7 +122,7 @@ figma.ui.onmessage = msg => {
   } else if (msg.type === 'change-theme-version') {
     // @TODO: figure out how to do this theming properly in type script.
     if (msg.themeId == "Dark") {
-      changeTheme(ColorTheme.Dark, msg.themeXml)
+      changeTheme(ColorTheme.Dark)
     }
   } else if (msg.type === 'token-hover') {
     console.log(msg.nodeId)
@@ -225,24 +225,17 @@ function isSceneNode(node:BaseNode) {
 // Change theme (placeholder functions)
 //------------------------------------------------------
 
-
-
-function changeTheme(theme:ColorTheme, themeXml:string) {
-  console.log(themeXml)
-   var xpath = require('xpath')
-   , dom = require('xmldom').DOMParser
- 
-  // var xml2 = "Themes/Theme.Dark.xml"
-   var doc = new dom().parseFromString(themeXml)
-   //var nodes = xpath.select("//", doc)
-  
-   console.log(doc)
-  // console.log("Node: " + nodes[0].toString())
+function changeTheme(theme:ColorTheme) {
+   var xml = require('./themes/Theme.Dark.xml');
+   var categories = xml.Themes.Theme[0].Category
+   console.log(categories)
+   let category = categories.filter(item => item.$.Name == "Environment");
+   console.log(category)
+   let color = category[0].Color.filter(item => item.$.Name == "ActiveBorder");
+   console.log(color)
+   let colorValue = color[0].Background[0].$.Source;
+   console.log(colorValue)
 }
-
-// Utils 
-//------------------------------------------------------
-
 
 function clone(val) {
   return JSON.parse(JSON.stringify(val))
