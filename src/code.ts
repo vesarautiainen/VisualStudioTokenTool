@@ -1,17 +1,10 @@
 import * as utils from './utils';
-//import score from '!!raw-loader!./themes/Theme.Dark.xml';
 
 figma.showUI(__html__,{width: 400, height: 700});
 
 enum TokenType {
   Font = 1,
   Color
-}
-
-enum ColorTheme {
-  Blue = 1,
-  Light, 
-  Dark
 }
 
 let nodesWithStyles: nodesWithStyles = {};
@@ -120,15 +113,7 @@ figma.ui.onmessage = msg => {
   } else if (msg.type === 'create-typography-annotation-all') {
     annotateAllTypographyTokens();
   } else if (msg.type === 'change-theme-version') {
-    // @TODO: figure out how to do this theming properly in type script.
-    if (msg.themeId == "Dark") {
-      changeTheme(ColorTheme.Dark)
-    } else if (msg.themeId == "Light") {
-      changeTheme(ColorTheme.Light)
-
-    } else if (msg.themeId == "Blue") {
-      changeTheme(ColorTheme.Blue)
-    } 
+      changeTheme(msg.themeId)
   } else if (msg.type === 'token-hover') {
     console.log(msg.nodeId)
     highlightNode(msg.nodeId);
@@ -206,7 +191,7 @@ function annotateAllTypographyTokens() {
   });
 }
 
-function switchThemeColor(nodeId:string, tokenName:string, themeInObject:any){
+function switchThemeColor(nodeId:string, tokenName:string, themeObject:any){
 
     // Find the category and token values
     let colorTokenId = ".";
@@ -221,7 +206,7 @@ function switchThemeColor(nodeId:string, tokenName:string, themeInObject:any){
     }
 
     // Find new color value from new theme
-    var categories = themeInObject.Themes.Theme[0].Category
+    var categories = themeObject.Themes.Theme[0].Category
     let category = categories.filter(item => item.$.Name == tokenCategory);
     let color = category[0].Color.filter(item => item.$.Name == colorToken);
     let colorValue = color[0].Background[0].$.Source;
@@ -278,17 +263,18 @@ function isSceneNode(node:BaseNode) {
 // Change theme (placeholder functions)
 //------------------------------------------------------
 
-function changeTheme(theme:ColorTheme) {
-  var themeInObject;
-  if (theme == ColorTheme.Dark)
-  themeInObject = require('./themes/Theme.Dark.xml');
-  else if (theme == ColorTheme.Light) 
-    themeInObject = require('./themes/Theme.Light.xml');
-  else if (theme == ColorTheme.Blue) 
-    themeInObject = require('./themes/Theme.Blue.xml');
+function changeTheme(theme:utils.ColorTheme) {
+  console.log(theme);
+  var themeObject;
+  if (theme == utils.ColorTheme.Dark)
+  themeObject = require('./themes/Theme.Dark.xml');
+  else if (theme == utils.ColorTheme.Light) 
+    themeObject = require('./themes/Theme.Light.xml');
+  else if (theme == utils.ColorTheme.Blue) 
+    themeObject = require('./themes/Theme.Blue.xml');
 
    nodesWithStyles.ColorStyles.forEach(element => {
-    switchThemeColor(element.nodeId, element.value, themeInObject);
+    switchThemeColor(element.nodeId, element.value, themeObject);
   });
 }
 
