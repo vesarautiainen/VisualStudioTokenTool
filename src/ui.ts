@@ -1,7 +1,7 @@
 
 import 'figma-plugin-ds/dist/figma-plugin-ds.css'
 import './ui.css'
-import * as utils from './utils';
+import * as themes from './themes';
 
 onmessage = (event) => {
   listTokens(event.data.pluginMessage.ColorStyles, "color-list")
@@ -72,21 +72,19 @@ document.getElementById('change-theme-dark').onclick = () => {
   document.getElementById('change-theme-dark').className = "button button--primary";
   document.getElementById('change-theme-light').className = "button button--secondary";
   document.getElementById('change-theme-blue').className = "button button--secondary";
-  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: utils.ColorTheme.Dark} }, '*')
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: themes.ColorTheme.Dark} }, '*')
 }
 
 document.getElementById('change-theme-light').onclick = () => {
   document.getElementById('change-theme-dark').className = "button button--secondary";
   document.getElementById('change-theme-light').className = "button button--primary";
   document.getElementById('change-theme-blue').className = "button button--secondary";
-  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: utils.ColorTheme.Light} }, '*')
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: themes.ColorTheme.Light} }, '*')
 }
 
 document.getElementById('change-theme-blue').onclick = () => {
   document.getElementById('change-theme-dark').className = "button button--secondary";
   document.getElementById('change-theme-light').className = "button button--secondary";
   document.getElementById('change-theme-blue').className = "button button--primary";
-  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: utils.ColorTheme.Blue} }, '*')
+  parent.postMessage({ pluginMessage: { type: 'change-theme-version', themeId: themes.ColorTheme.Blue} }, '*')
 }
-
-

@@ -1,5 +1,7 @@
 import * as utils from './utils';
-//import * as themes from './themes';
+import * as themes from './themes';
+
+let colorThemes = new themes.Themes();
 
 figma.showUI(__html__,{width: 400, height: 700});
 
@@ -192,44 +194,25 @@ function annotateAllTypographyTokens() {
   });
 }
 
-function switchThemeColor(nodeId:string, tokenName:string, themeObject:any){
+function switchThemeColor(nodeId:string, tokenName:string, theme:themes.ColorTheme){
 
-    // Find the category and token values
-    let colorTokenId = ".";
-    let tokenCategory;
-      let colorToken;
-    let foundIndex = tokenName.indexOf(colorTokenId);
-    if (foundIndex) {
-      tokenCategory = tokenName.slice(0, foundIndex);
-      colorToken = tokenName.slice(foundIndex+1);
-    } else {
-      console.log("Error: switchThemeColor() Can't extract category and color token")
-    }
+  let colorValue = colorThemes.getColorValue(tokenName, theme);
 
-    // Find new color value from new theme
-    var categories = themeObject.Themes.Theme[0].Category
-    let category = categories.filter(item => item.$.Name == tokenCategory);
-    let color = category[0].Color.filter(item => item.$.Name == colorToken);
-    let colorValue = color[0].Background[0].$.Source;
+  // Find the node and set the new color value
+  let originalNode = <SceneNode>figma.getNodeById(nodeId);
+  if (isSceneNode(originalNode)) {
+    let rectNode = <RectangleNode>originalNode;
+    const fills = clone(rectNode.fills)
 
-    console.log("category:" + tokenCategory + " ,token: " + colorToken + " ,color: " + colorValue)
+    // get rgb values
+    let rgb = hexToRgb(colorValue.slice(2))
 
-    // Find the node and set the new color value
-    let originalNode = <SceneNode>figma.getNodeById(nodeId);
-    if (isSceneNode(originalNode)) {
-      let rectNode = <RectangleNode>originalNode;
-      const fills = clone(rectNode.fills)
-
-      // get rgb values
-      let rgb = hexToRgb(colorValue.slice(2))
-
-      // set data
-      fills[0].color.r = rgb.r/255;
-      fills[0].color.g = rgb.g/255;
-      fills[0].color.b = rgb.b/255;
-      rectNode.fills = fills 
-    }
-
+    // set data
+    fills[0].color.r = rgb.r/255;
+    fills[0].color.g = rgb.g/255;
+    fills[0].color.b = rgb.b/255;
+    rectNode.fills = fills 
+  }
 }
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -264,18 +247,9 @@ function isSceneNode(node:BaseNode) {
 // Change theme (placeholder functions)
 //------------------------------------------------------
 
-function changeTheme(theme:utils.ColorTheme) {
-  console.log(theme);
-  var themeObject;
-  if (theme == utils.ColorTheme.Dark)
-  themeObject = require('./themes/Theme.Dark.xml');
-  else if (theme == utils.ColorTheme.Light) 
-    themeObject = require('./themes/Theme.Light.xml');
-  else if (theme == utils.ColorTheme.Blue) 
-    themeObject = require('./themes/Theme.Blue.xml');
-
+function changeTheme(theme:themes.ColorTheme) {
    nodesWithStyles.ColorStyles.forEach(element => {
-    switchThemeColor(element.nodeId, element.value, themeObject);
+    switchThemeColor(element.nodeId, element.value, theme);
   });
 }
 
