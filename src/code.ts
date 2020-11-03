@@ -33,6 +33,7 @@ function checkNodeForStyles(node) {
   }
 }
 
+
 function extractLayerName(text:string):string {
   let colorTokenId = "[token:";
   let layerName = text;

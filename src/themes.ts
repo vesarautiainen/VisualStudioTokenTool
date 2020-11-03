@@ -1,8 +1,8 @@
 import { Interface } from "readline";
 
-let blueThemeObj = require("./themes/Theme.Blue.xml");
-let lightThemeObj = require("./themes/Theme.Light.xml");
-let darkThemeObj = require("./themes/Theme.Dark.xml");
+let blueThemeObj = require("xml-loader!./themes/Theme.Blue.xml");
+let lightThemeObj = require("xml-loader!./themes/Theme.Light.xml");
+let darkThemeObj = require("xml-loader!./themes/Theme.Dark.xml");
 
 export enum ColorTheme {
     Blue = 1,
