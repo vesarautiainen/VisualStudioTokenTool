@@ -44,3 +44,12 @@ input:focus { box-shadow: inset 0 0 0 2px #18A0FB; } */
   background-color: #eaeaea
 }
 
+.token_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.input__field {
+  height: 24px;
+}

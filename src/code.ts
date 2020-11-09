@@ -54,7 +54,7 @@ function extractTokenName(text: string):string {
     tokenValue = tokenValue.replace(']', '');
     tokenValue = tokenValue.replace(' ', '');
   } else {
-    tokenValue = "No token id found"
+    tokenValue = "No color token defined!"
   }
   return tokenValue;
 }
@@ -143,7 +143,7 @@ function annotateColorToken(nodeId:string, tokenName:string){
     let yPos = yOrigin - annotationInstance.height + originalNode.height / 2;
     annotationInstance.relativeTransform = [[1, 0, xPos],[0, 1, yPos]];
 
-    if (tokenName === "No token id found") { 
+    if (tokenName == "No color token defined!") { 
       var background = <RectangleNode>annotationInstance.findOne(n => n.type === "FRAME" && n.name === "AnnotationLabel")
       const fills = clone(background.fills)
       fills[0].color.r = 0.83
@@ -167,7 +167,6 @@ function annotateTypographyToken(nodeId:string, tokenName:string){
 
     // find the original node and set the annotation label position
     let originalNode = <TextNode>figma.getNodeById(nodeId);
-    console.log(originalNode.absoluteTransform)
     let xOrigin = originalNode.absoluteTransform[0][2]
     let yOrigin = originalNode.absoluteTransform[1][2]
     let xPos = xOrigin - annotationInstance.width / 2 + originalNode.width / 2;

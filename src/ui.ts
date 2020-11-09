@@ -9,24 +9,55 @@ onmessage = (event) => {
 }
 
 function listTokens(tokenArray, destinationListId) {
-  console.log("here2")
   let targetList = document.getElementById(destinationListId);
 
   tokenArray.forEach(function (token) {
-    let div = document.createElement("div");
+    
+    // first line
+    let firstline = document.createElement('div')
+    firstline.textContent = 'Layer: ' + token.nodeName
+    firstline.id = 'layer-name '
+   
 
-    div.innerHTML += "Layer: " + token.nodeName + "<br/>" + "Token: " + token.value 
+    // second line
+    let secondline = document.createElement('div')
+    secondline.textContent = 'Token: '
+    secondline.className = 'token_row'
+    
+    let tokenValue = document.createElement('div')
+    tokenValue.className = 'input'
+    let tokenInput = document.createElement('input')
+    tokenInput.type = 'input'
+    tokenInput.className = 'input__field'
+    tokenInput.value = token.value
+    secondline.appendChild(tokenValue)
+    secondline.appendChild(tokenInput)
+
+    let div = document.createElement('div');
     div.className = "token"
     div.id = token.nodeId + "/" + token.value;
     div.onmouseover = handleTokenMouseover;
     div.onclick = handleTokenClick         
+    
+    // append items
+    secondline.appendChild(tokenValue)
+    div.appendChild(firstline)
+    div.appendChild(secondline)
+
     targetList.appendChild(div);
+
   }); 
 }
 
-function getId(text) {
+// Extract the color token from the token div id field
+function getId(object) {
+  let id
   var separator = "/";
-  return text.slice(0,text.indexOf(separator));
+  let closest = object.closest(".token")
+  if (closest) {
+    id = closest.id
+  }
+  return id.slice(0,id.indexOf(separator));
 }
 
 function getTokenName(text) {
@@ -35,7 +66,7 @@ function getTokenName(text) {
 }
 
 var handleTokenMouseover = function(sender) {
-  parent.postMessage({ pluginMessage: { type: 'token-hover', nodeId: getId(sender.target.id)} }, '*')
+  parent.postMessage({ pluginMessage: { type: 'token-hover', nodeId: getId(sender.target)} }, '*')
 }
 
 var handleTokenClick = function(sender) {
@@ -43,21 +74,20 @@ var handleTokenClick = function(sender) {
   if (isColorToken(sender)) {
     parent.postMessage({ pluginMessage: { 
       type: 'create-color-annotation', 
-      nodeId: getId(sender.target.id), 
+      nodeId: getId(sender.target), 
       tokenName: getTokenName(sender.target.id)} 
       }, '*')
   } else {
     parent.postMessage({ pluginMessage: { 
       type: 'create-typography-annotation', 
-      nodeId: getId(sender.target.id), 
+      nodeId: getId(sender.target), 
       tokenName: getTokenName(sender.target.id)} 
       }, '*')
   } 
 }
 
 function isColorToken(sender) {
-  console.log(sender)
-  return sender.target.parentElement.id == "color-list"
+  return document.getElementById('color-list').contains(sender.target);
 }
 
 document.getElementById('create-color-all').onclick = () => {
