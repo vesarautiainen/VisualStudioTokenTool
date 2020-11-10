@@ -16,13 +16,15 @@ function listTokens(tokenArray, destinationListId) {
     // first line
     let firstline = document.createElement('div')
     firstline.textContent = 'Layer: ' + token.nodeName
-    firstline.id = 'layer-name '
+    firstline.id = 'token_info_first_row'
+    firstline.className = 'token_info_row'
    
 
     // second line
     let secondline = document.createElement('div')
     secondline.textContent = 'Token: '
-    secondline.className = 'token_row'
+    secondline.id = 'token_info_second_row'
+    secondline.className = 'token_info_row'
     
     let tokenValue = document.createElement('div')
     tokenValue.className = 'input'
