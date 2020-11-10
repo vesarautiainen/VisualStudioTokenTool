@@ -15,10 +15,22 @@ function listTokens(tokenArray, destinationListId) {
     
     // first line
     let firstline = document.createElement('div')
-    firstline.textContent = 'Layer: ' + token.nodeName
+    let layername = document.createElement('div')
+    layername.textContent = 'Layer: ' + token.nodeName
     firstline.id = 'token_info_first_row'
     firstline.className = 'token_info_row'
-   
+    firstline.appendChild(layername)
+
+    // first line buttons
+    let firstlinebuttons = document.createElement('div')
+    firstlinebuttons.className = "button-container"
+    let button = document.createElement('div')
+    let buttonicon = document.createElement('div')
+    button.className = "icon-button"
+    buttonicon.className = "icon icon--plus"
+    button.appendChild(buttonicon)
+    firstlinebuttons.appendChild(button)
+    firstline.appendChild(firstlinebuttons)
 
     // second line
     let secondline = document.createElement('div')
