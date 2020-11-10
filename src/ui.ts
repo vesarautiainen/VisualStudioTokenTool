@@ -31,6 +31,7 @@ function listTokens(tokenArray, destinationListId) {
     button.appendChild(buttonicon)
     firstlinebuttons.appendChild(button)
     firstline.appendChild(firstlinebuttons)
+    button.onclick = handleTokenClick
 
     // second line
     let secondline = document.createElement('div')
@@ -51,7 +52,7 @@ function listTokens(tokenArray, destinationListId) {
     div.className = "token"
     div.id = token.nodeId + "/" + token.value;
     div.onmouseover = handleTokenMouseover;
-    div.onclick = handleTokenClick         
+    //div.onclick = handleTokenClick         
     
     // append items
     secondline.appendChild(tokenValue)
@@ -65,18 +66,36 @@ function listTokens(tokenArray, destinationListId) {
 
 // Extract the color token from the token div id field
 function getId(object) {
-  let id
+  let closest
+  let id:string = ""
   var separator = "/";
-  let closest = object.closest(".token")
+  if (object) {
+    closest = object.closest(".token")
+  } else {
+    console.log("Error in getTokenName. Object is null.")
+    return 
+  }
   if (closest) {
     id = closest.id
   }
+  console.log(id, id.slice(0,id.indexOf(separator)))
   return id.slice(0,id.indexOf(separator));
 }
 
-function getTokenName(text) {
+function getTokenName(object) {
+  let closest 
+  let id:string = ""
   var separator = "/";
-  return text.slice(text.indexOf(separator)+separator.length);
+  if (object) {
+    closest = object.closest(".token")
+  } else {
+    console.log("Error in getTokenName. Object is null.")
+    return 
+  }
+  if (closest) {
+    id = closest.id
+  }
+  return id.slice(id.indexOf(separator)+1);
 }
 
 var handleTokenMouseover = function(sender) {
@@ -84,18 +103,17 @@ var handleTokenMouseover = function(sender) {
 }
 
 var handleTokenClick = function(sender) {
-  console.log(sender.tokenId)
   if (isColorToken(sender)) {
     parent.postMessage({ pluginMessage: { 
       type: 'create-color-annotation', 
       nodeId: getId(sender.target), 
-      tokenName: getTokenName(sender.target.id)} 
+      tokenName: getTokenName(sender.target)} 
       }, '*')
   } else {
     parent.postMessage({ pluginMessage: { 
       type: 'create-typography-annotation', 
       nodeId: getId(sender.target), 
-      tokenName: getTokenName(sender.target.id)} 
+      tokenName: getTokenName(sender.target)} 
       }, '*')
   } 
 }
