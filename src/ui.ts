@@ -1,22 +1,29 @@
-
 import 'figma-plugin-ds/dist/figma-plugin-ds.css'
 import './ui.css'
 import * as themes from './themes';
 
+let nodesWithStyles
+
 onmessage = (event) => {
-  listTokens(event.data.pluginMessage.ColorStyles, "color-list")
-  listTokens(event.data.pluginMessage.TextStyles, "typography-list")
+  nodesWithStyles = event.data.pluginMessage
+  createTokenList(nodesWithStyles.filter(e => {
+    return e.type == "fillStyle" || e.type == "strokeStyle"
+  }), "color-list")
+
+  createTokenList(nodesWithStyles.filter(e => {
+    return e.type == "textStyle"
+  }), "typography-list")
 }
 
-function listTokens(tokenArray, destinationListId) {
+function createTokenList(tokenArray, destinationListId) {
   let targetList = document.getElementById(destinationListId);
 
-  tokenArray.forEach(function (token) {
+  tokenArray.forEach(e => {
     
     // first line
     let firstline = document.createElement('div')
     let layername = document.createElement('div')
-    layername.textContent = 'Layer: ' + token.nodeName
+    layername.textContent = 'Layer: ' + e.name
     firstline.id = 'token_info_first_row'
     firstline.className = 'token_info_row'
     firstline.appendChild(layername)
@@ -31,7 +38,7 @@ function listTokens(tokenArray, destinationListId) {
     button.appendChild(buttonicon)
     firstlinebuttons.appendChild(button)
     firstline.appendChild(firstlinebuttons)
-    button.onclick = handleTokenClick
+    button.onclick = handleAddAnnotation
 
     // second line
     let secondline = document.createElement('div')
@@ -45,15 +52,14 @@ function listTokens(tokenArray, destinationListId) {
     tokenInput.type = 'input'
     tokenInput.className = 'input__field'
     tokenInput.onchange = handleTokenNameUpdate
-    tokenInput.value = token.value
+    tokenInput.value = e.token
     secondline.appendChild(tokenValue)
     secondline.appendChild(tokenInput)
 
     let div = document.createElement('div');
     div.className = "token"
-    div.id = token.nodeId + "/" + token.value;
+    div.id = e.id + "/" + e.indexId;
     div.onmouseover = handleTokenMouseover;
-    //div.onclick = handleTokenClick         
     
     // append items
     secondline.appendChild(tokenValue)
@@ -83,7 +89,7 @@ function getId(object) {
   return id.slice(0,id.indexOf(separator));
 }
 
-function getTokenName(object) {
+function getIndexId(object) {
   let closest 
   let id:string = ""
   var separator = "/";
@@ -103,28 +109,16 @@ var handleTokenMouseover = function(sender) {
   parent.postMessage({ pluginMessage: { type: 'token-hover', nodeId: getId(sender.target)} }, '*')
 }
 
-var handleTokenClick = function(sender) {
-  if (isColorToken(sender)) {
-    parent.postMessage({ pluginMessage: { 
-      type: 'create-color-annotation', 
-      nodeId: getId(sender.target), 
-      tokenName: getTokenName(sender.target)} 
-      }, '*')
-  } else {
-    parent.postMessage({ pluginMessage: { 
-      type: 'create-typography-annotation', 
-      nodeId: getId(sender.target), 
-      tokenName: getTokenName(sender.target)} 
-      }, '*')
-  } 
+var handleAddAnnotation = function(sender) {
+  // Find the data based on 'indexId' that is unique to each item
+  parent.postMessage({ pluginMessage: { 
+    type: 'create-annotation', 
+    nodeData: nodesWithStyles.find(e => (e.indexId == getIndexId(sender.target)))}
+    }, '*')
 }
 
 var handleTokenNameUpdate = function(sender) {
   parent.postMessage({ pluginMessage: { type: 'update-color-token', nodeId: getId(sender.target), newTokenName: sender.target.value} }, '*')
-}
-
-function isColorToken(sender) {
-  return document.getElementById('color-list').contains(sender.target);
 }
 
 document.getElementById('create-color-all').onclick = () => {
