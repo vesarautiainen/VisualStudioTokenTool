@@ -40,7 +40,8 @@ input:focus { box-shadow: inset 0 0 0 2px #18A0FB; } */
 }
 
 .token:hover {
-  border: 1px solid #806CF9; 
+  border: 1px solid darkGray; 
+  background-color: #eaeaea
 }
 
 .token_info_row {
@@ -51,11 +52,4 @@ input:focus { box-shadow: inset 0 0 0 2px #18A0FB; } */
 
 .input__field {
   height: 24px;
-}
-
-.button-container {
-  display: flex;
-  flex-direction: row;
-  flex-grow: 3;
-  justify-content: flex-end;
 }
