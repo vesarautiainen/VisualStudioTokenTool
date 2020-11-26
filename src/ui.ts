@@ -44,6 +44,7 @@ function listTokens(tokenArray, destinationListId) {
     let tokenInput = document.createElement('input')
     tokenInput.type = 'input'
     tokenInput.className = 'input__field'
+    tokenInput.onchange = handleTokenNameUpdate
     tokenInput.value = token.value
     secondline.appendChild(tokenValue)
     secondline.appendChild(tokenInput)
@@ -116,6 +117,10 @@ var handleTokenClick = function(sender) {
       tokenName: getTokenName(sender.target)} 
       }, '*')
   } 
+}
+
+var handleTokenNameUpdate = function(sender) {
+  parent.postMessage({ pluginMessage: { type: 'update-color-token', nodeId: getId(sender.target), newTokenName: sender.target.value} }, '*')
 }
 
 function isColorToken(sender) {

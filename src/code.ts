@@ -23,16 +23,14 @@ interface nodesWithStyles {
 
 function checkNodeForStyles(node) {
   // Fill style. The token name is currently embedded in the node name.
-  var values:string[];
   if (node.fillStyleId != undefined && node.fillStyleId != "" && node.visible) {
-    colorStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": extractTokenName(node.name)})
+    colorStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": node.getSharedPluginData('tokendata', 'color-token')})
   }
     // Text style. The font token name is currently in the style description.
   if (node.textStyleId != undefined && node.textStyleId != "" && node.visible) {
     textStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": figma.getStyleById(node.textStyleId).description})
   }
 }
-
 
 function extractLayerName(text:string):string {
   let colorTokenId = "[token:";
@@ -43,6 +41,7 @@ function extractLayerName(text:string):string {
   return foundIndex ? layerName.slice(0, foundIndex) : layerName
 }
 
+// Deprecated
 function extractTokenName(text: string):string {
   let colorTokenId = "[token:";
   let tokenValue = text;
@@ -125,6 +124,17 @@ figma.ui.onmessage = msg => {
     annotateColorToken(msg.nodeId, msg.tokenName)
   } else if (msg.type === 'create-typography-annotation') {
     annotateTypographyToken(msg.nodeId, msg.tokenName);
+  } else if (msg.type === 'update-color-token') {
+    updatePluginData(msg.nodeId, msg.newTokenName);
+  }
+
+}
+
+// updated node data that only this plugin can read
+function updatePluginData(nodeId, newTokenName) {
+  let node = <SceneNode>figma.getNodeById(nodeId);
+  if (node) {
+    node.setSharedPluginData('tokendata', 'color-token', newTokenName)
   }
 }
 
