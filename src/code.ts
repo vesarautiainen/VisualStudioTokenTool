@@ -22,12 +22,17 @@ interface nodesWithStyles {
 }
 
 function checkNodeForStyles(node) {
-  // Fill style. The token name is currently embedded in the node name.
-  if (node.fillStyleId != undefined && node.fillStyleId != "" && node.visible) {
+  // Fill style. The token name is currently in the plugin data and accessible only via plugin API and only by this plugin
+  if (node && node.fillStyleId != undefined && node.fillStyleId != "" && node.visible) {
     colorStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": node.getSharedPluginData('tokendata', 'color-token')})
   }
+
+  if (node && node.strokeStyleId != undefined && node.strokeStyleId != "" && node.visible) {
+    colorStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": node.getSharedPluginData('tokendata', 'color-token')})
+  }
+  
     // Text style. The font token name is currently in the style description.
-  if (node.textStyleId != undefined && node.textStyleId != "" && node.visible) {
+  if (node && node.textStyleId != undefined && node.textStyleId != "" && node.visible) {
     textStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": figma.getStyleById(node.textStyleId).description})
   }
 }
@@ -38,7 +43,7 @@ function extractLayerName(text:string):string {
   let verifyString = text.toLowerCase();
   let foundIndex = verifyString.indexOf(colorTokenId);
 
-  return foundIndex ? layerName.slice(0, foundIndex) : layerName
+  return foundIndex != -1 ? layerName.slice(0, foundIndex) : layerName
 }
 
 // Deprecated
