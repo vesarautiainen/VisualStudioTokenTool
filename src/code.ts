@@ -3,36 +3,75 @@ import * as themes from './themes';
 
 let colorThemes = new themes.Themes();
 
-figma.showUI(__html__,{width: 400, height: 700});
+figma.showUI(__html__,{width: 500, height: 700});
 
 enum TokenType {
   Font = 1,
   Color
 }
 
-let nodesWithStyles: nodesWithStyles = {};
-var colorStyleArray = [];
-var textStyleArray = [];
+// config
+let annotationDotSize: number = 5
 
+
+enum VerticalAlignement {
+  Top = 1,
+  Bottom = 2,
+  Center = 3
+}
+
+let nodesWithStyles = [];
 
 // The datastructure that contains all the nodes with associated styles and will be passed to the UI
-interface nodesWithStyles {
-  ColorStyles?: any,
-  TextStyles?: any
+interface NodeData {
+  id: string,
+  indexId: number,
+  name: string,
+  type: string, 
+  token: string
 }
 
 function checkNodeForStyles(node) {
-  // Fill style. The token name is currently embedded in the node name.
-  var values:string[];
-  if (node.fillStyleId != undefined && node.fillStyleId != "" && node.visible) {
-    colorStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": extractTokenName(node.name)})
+  let nodeData:NodeData
+  // Fill style. The token name is currently in the plugin data and accessible only via plugin API and only by this plugin
+  if (node && node.fillStyleId != undefined && node.fillStyleId != "" && node.visible) {
+    nodeData = {
+      id: node.id, 
+      indexId: getNextFreeIndexId(),
+      name: extractLayerName(node.name), 
+      type: "fillStyle", 
+      token: node.getSharedPluginData('tokendata', 'color-token')
+    }
+    nodesWithStyles.push(nodeData)
   }
+
+  if (node && node.strokeStyleId != undefined && node.strokeStyleId != "" && node.visible) {
+    nodeData = {
+      id: node.id, 
+      indexId: getNextFreeIndexId(), 
+      name: extractLayerName(node.name), 
+      type: "strokeStyle", 
+      token: node.getSharedPluginData('tokendata', 'color-token')
+    }
+    nodesWithStyles.push(nodeData)
+  }
+  
     // Text style. The font token name is currently in the style description.
-  if (node.textStyleId != undefined && node.textStyleId != "" && node.visible) {
-    textStyleArray.push({"nodeId": node.id, "nodeName":extractLayerName(node.name), "value": figma.getStyleById(node.textStyleId).description})
+  if (node && node.textStyleId != undefined && node.textStyleId != "" && node.visible) {
+    nodeData = {
+      id: node.id, 
+      indexId: getNextFreeIndexId(),
+      name: extractLayerName(node.name), 
+      type: "textStyle", 
+      token: figma.getStyleById(node.textStyleId).description
+    }
+    nodesWithStyles.push(nodeData)
   }
 }
 
+function getNextFreeIndexId() {
+  return nodesWithStyles.length > 0 ? nodesWithStyles[nodesWithStyles.length-1].indexId + 1 : 0
+}
 
 function extractLayerName(text:string):string {
   let colorTokenId = "[token:";
@@ -40,9 +79,10 @@ function extractLayerName(text:string):string {
   let verifyString = text.toLowerCase();
   let foundIndex = verifyString.indexOf(colorTokenId);
 
-  return foundIndex ? layerName.slice(0, foundIndex) : layerName
+  return foundIndex != -1 ? layerName.slice(0, foundIndex) : layerName
 }
 
+// Deprecated
 function extractTokenName(text: string):string {
   let colorTokenId = "[token:";
   let tokenValue = text;
@@ -61,6 +101,7 @@ function extractTokenName(text: string):string {
 
 function traverse(node) {
   checkNodeForStyles(node)
+  
   if ("children" in node) {
     for (const child of node.children) {
       traverse(child)    
@@ -78,9 +119,6 @@ function initSuccess() {
   for (const node of figma.currentPage.selection) {
     traverse(node) 
   }
-
-  nodesWithStyles.ColorStyles = colorStyleArray;
-  nodesWithStyles.TextStyles = textStyleArray;
 
   // Send nodes with styles to the UI
   figma.ui.postMessage(nodesWithStyles);
@@ -121,14 +159,25 @@ figma.ui.onmessage = msg => {
   } else if (msg.type === 'token-hover') {
     console.log(msg.nodeId)
     highlightNode(msg.nodeId);
-  } else if (msg.type === 'create-color-annotation') {
-    annotateColorToken(msg.nodeId, msg.tokenName)
-  } else if (msg.type === 'create-typography-annotation') {
-    annotateTypographyToken(msg.nodeId, msg.tokenName);
+  } else if (msg.type === 'create-annotation') {
+    let verticalAlignement = msg.nodeData.type == "strokeStyle" ? VerticalAlignement.Top : VerticalAlignement.Center
+    msg.nodeData.type == "textStyle" ? 
+      annotateTypographyToken(msg.nodeData.id, msg.nodeData.token) :
+      annotateColorToken(msg.nodeData.id, msg.nodeData.token, verticalAlignement)
+  } else if (msg.type === 'update-color-token') {
+    updatePluginData(msg.nodeId, msg.newTokenName);
   }
 }
 
-function annotateColorToken(nodeId:string, tokenName:string){
+// updated node data that only this plugin can read
+function updatePluginData(nodeId, newTokenName) {
+  let node = <SceneNode>figma.getNodeById(nodeId);
+  if (node) {
+    node.setSharedPluginData('tokendata', 'color-token', newTokenName)
+  }
+}
+
+function annotateColorToken(nodeId:string, tokenName:string, verticalAlignement:VerticalAlignement){
   const annotationInstance = createAnnotation(TokenType.Color);
   if (annotationInstance) {
     // set data
@@ -140,7 +189,11 @@ function annotateColorToken(nodeId:string, tokenName:string){
     let yOrigin = originalNode.absoluteTransform[1][2]
     annotationInstance.resize(annotationInstance.width,utils.randomInteger(30,150))
     let xPos = xOrigin - annotationInstance.width / 2 + originalNode.width / 2;
-    let yPos = yOrigin - annotationInstance.height + originalNode.height / 2;
+
+    let yPos = verticalAlignement == VerticalAlignement.Center ? 
+      yOrigin - annotationInstance.height + originalNode.height / 2 + annotationDotSize / 2 :
+      yOrigin - annotationInstance.height + annotationDotSize / 2 
+
     annotationInstance.relativeTransform = [[1, 0, xPos],[0, 1, yPos]];
 
     if (tokenName == "No color token defined!") { 
@@ -183,14 +236,17 @@ function annotateTypographyToken(nodeId:string, tokenName:string){
 // Annotate tokens
 //------------------------------------------------------
 function annotateAllColorTokens() {
-    nodesWithStyles.ColorStyles.forEach(element => {
-      annotateColorToken(element.nodeId, element.value);
-    });
+  let colorTokenNodes = nodesWithStyles.filter( e => e.type != "textStyle")
+  colorTokenNodes.forEach(element => {
+    let verticalAlignement = element.type == "strokeStyle" ? VerticalAlignement.Top : VerticalAlignement.Center
+    annotateColorToken(element.id, element.token, verticalAlignement);
+  });
 }
 
 function annotateAllTypographyTokens() {
-  nodesWithStyles.TextStyles.forEach(element => {
-    annotateTypographyToken(element.nodeId, element.value);
+  let fontTokenNodes = nodesWithStyles.filter( e => e.type == "textStyle")
+  fontTokenNodes.forEach(element => {
+    annotateTypographyToken(element.id, element.token);
   });
 }
 
@@ -248,8 +304,9 @@ function isSceneNode(node:BaseNode) {
 //------------------------------------------------------
 
 function changeTheme(theme:themes.ColorTheme) {
-   nodesWithStyles.ColorStyles.forEach(element => {
-    switchThemeColor(element.nodeId, element.value, theme);
+  let colorTokenNodes = nodesWithStyles.filter( e => e.type != "textStyle")
+  colorTokenNodes.forEach(element => {
+    switchThemeColor(element.id, element.token, theme);
   });
 }
 
